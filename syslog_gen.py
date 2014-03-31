@@ -8,6 +8,7 @@ test open source logging solutions.
 
 import socket
 import argparse
+import random
 
 def syslog_sender(message, host, port):
 	try:
@@ -17,16 +18,10 @@ def syslog_sender(message, host, port):
 	finally:
 		sock.close()
 
-def help_menu():
-	parser = argparse.ArgumentParser()
-	parser.parse_args()
+
 
 
 if __name__ == "__main__":
-
-	#message = "Syslog Generator Test"
-	#host = "10.211.55.15"
-	#port = 514
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--host", required=True,
@@ -35,21 +30,29 @@ if __name__ == "__main__":
 						help="Remote port to send messages")
 	parser.add_argument("--file", required=True, 
 						help="Read messages from file")
-	parser.add_argument("--count", help="Number of messages to send")
-	args = parser.parse_args()
+	parser.add_argument("--count", type=int, required=True,
+						help="Number of messages to send")
+	parser.add_argument("--batch", help="Use with count flag to send \
+		                X messages in X interval, batch being interval")
 	
-	if args.count:
-		print("[+] Sending {0} messages to {1} on port {2}".format
+	args = parser.parse_args()
+		(args.host, args.port))
+	
+	try:
+		with open(args.file, 'r') as sample_log:
+			random_logs = random.sample(list(sample_log), args.count)
+	except FileNotFoundError:
+		print("Please specify valid file name")
+		exit(1)
+
+	print("[+] Sending {0} messages to {1} on port {2}".format
 				(args.count, args.host, args.port))
-		syslog_sender(args.file, args.host, args.port)
-	else:
-		print("[+] Sending messages to {0} on port {1}".format
-				(args.host, args.port))
+	for message in random_logs:
+		syslog_sender(message, args.host, args.port)
+
 
 '''
 TODO:
 
-Should also randomize what gets picked from the file. Do not send message sequentially. 
-Need to create function to read random lines from file. 
-Need a while statement that will do the counting
+Need to have options for burst that requires delay
 '''
