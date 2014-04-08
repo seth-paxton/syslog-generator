@@ -52,7 +52,7 @@ def random_syslogs():
 
 			#syslog_sender(syslog_message, args.host, args.port)
 			udp_syslog_server = logging.handlers.DatagramHandler(args.host, args.port)
-			udp_syslog_server.send(syslog_message)
+			udp_syslog_server.send(bytes(syslog_message, 'UTF-8'))
 			print("[+] Sent: {0}".format(syslog_message), end='')
 
 
