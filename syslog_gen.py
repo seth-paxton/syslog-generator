@@ -11,6 +11,7 @@ import argparse
 import random
 import sys
 import time
+import logging, logging.handlers
 
 """
 Modify these variables to change the hostname, domainame, and tag
@@ -20,7 +21,7 @@ hostname = "host"
 domain_name = ".example.com"
 tag = ["kernel", "python", "suricata"]
 
-def syslog_sender(message, host, port):
+def raw_udp_sender(message, host, port):
 	try:
 	    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	    message = bytes(message, 'UTF-8')
@@ -49,8 +50,9 @@ def random_syslogs():
 			(time_output, hostname, random_host, domain_name,\
 				random_tag, message)
 
-			syslog_sender(syslog_message, args.host, args.port)
-
+			#syslog_sender(syslog_message, args.host, args.port)
+			udp_syslog_server = logging.handlers.DatagramHandler(args.host, args.port)
+			udp_syslog_server.send(syslog_message)
 			print("[+] Sent: {0}".format(syslog_message), end='')
 
 
