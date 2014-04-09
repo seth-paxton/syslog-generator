@@ -11,7 +11,8 @@ import argparse
 import random
 import sys
 import time
-import logging, logging.handlers
+import logging
+from logging.handlers import SysLogHandler
 
 """
 Modify these variables to change the hostname, domainame, and tag
@@ -19,9 +20,11 @@ that show up in the log messages.
 """   
 hostname = "host"
 domain_name = ".example.com"
-tag = ["kernel", "python", "suricata"]
+tag = ["kernel", "python", "ids", "ips"]
+syslog_level = ["info", "error", "warn", "critical"]
 
 def raw_udp_sender(message, host, port):
+	# Stubbed in or later use
 	try:
 	    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	    message = bytes(message, 'UTF-8')
@@ -38,22 +41,34 @@ def open_sample_log(sample_log):
 		print("[+] ERROR: Please specify valid filename")
 		return sys.exit()
 
-def random_syslogs():
-	for message in range(1, args.count+1):
+def syslogs_sender():
+	# Initalize SysLogHandler
+	logger = logging.getLogger()
+	logger.setLevel(logging.INFO)
+	syslog = SysLogHandler(address=(args.host, args.port))
+	logger.addHandler(syslog)
 
+	for message in range(1, args.count+1):
+			# Randomize some fields
 			time_output = time.strftime("%b %d %H:%M:%S")
 			random_host = random.choice(range(1,11))
 			random_tag = random.choice(tag)
+			random_level = random.choice(syslog_level)
 
 			message = open_sample_log(args.file)
-			syslog_message = "{0} {1}{2}{3} {4}: {5}".format\
-			(time_output, hostname, random_host, domain_name,\
-				random_tag, message)
+	
+			format = logging.Formatter\
+				('%(asctime)s {0}{1}{2} {3} %(levelname)s %(message)s'\
+				.format(hostname, random_host, domain_name, random_tag))
+			syslog.setFormatter(format)
+			
+			print("[+] Sent: {0}: {1}".format(time_output, message), end='')
 
-			#syslog_sender(syslog_message, args.host, args.port)
-			udp_syslog_server = logging.handlers.DatagramHandler(args.host, args.port)
-			udp_syslog_server.send(bytes(syslog_message, 'UTF-8'))
-			print("[+] Sent: {0}".format(syslog_message), end='')
+			getattr(logger, random_level)(message)
+
+	logger.removeHandler(syslog)
+	syslog.close()
+
 
 
 if __name__ == "__main__":
@@ -77,7 +92,7 @@ if __name__ == "__main__":
 			.format(args.count, args.sleep, args.host, args.port))
 		try:
 			while True:
-				random_syslogs()
+				syslogs_sender()
 				time.sleep(args.sleep)
 		except KeyboardInterrupt:
 			    # Use ctrl-c to stop the loop
@@ -85,4 +100,4 @@ if __name__ == "__main__":
 	else:
 		print("[+] Sending {0} messages to {1} on port {2}".format
 				(args.count, args.host, args.port))
-		random_syslogs()
+		syslogs_sender()
