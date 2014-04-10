@@ -18,7 +18,7 @@ This script is written for Python 3+ and is meant to be run from the command lin
 
 #### Optional Arguments
 
-* --sleep: Number of seconds to sleep until the next batch of messages is sent. Using this argument continues the script indefinitely. 
+* --sleep: Number of seconds to sleep until the next batch of messages is sent. Using this argument continues the script indefinitely or until the CTRL-C combination is invoked.  
 
 #### Example
 
