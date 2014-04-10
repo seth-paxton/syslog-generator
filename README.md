@@ -1,7 +1,7 @@
 syslog-generator
 ================
 
-Generates syslog messages from a user defined file.
+Generates syslog messages from a user defined file and sends them to a remote host. 
 
 ### Functionality
 This script generates random hostnames, syslog levels, and tags to be used in a message. The variables and data structures can be modified to fit your needs by changing them towards the top of the script. The script also randomly pulls messages from a user defined file to provide variety to log data.  
@@ -11,14 +11,14 @@ This script is written for Python 3+ and is meant to be run from the command lin
 
 #### Required Arguments
 
---host: IP or hostname to send syslog messages.
---port: UDP port to send syslog messages.  
---file: Filename to read syslog messasges from. This file should contain ONLY the text of the message. Syslog format is handled by the script. 
---count: Number of messages to send at one time. 
+* --host: IP or hostname to send syslog messages.
+* --port: UDP port to send syslog messages.  
+* --file: Filename to read syslog messasges from. This file should contain ONLY the text of the message. Syslog format is handled by the script. 
+* --count: Number of messages to send at one time. 
 
 #### Optional Arguments
 
---sleep: Number of seconds to sleep until the next batch of messages is sent. Using this argument continues the script indefinitely. 
+* --sleep: Number of seconds to sleep until the next batch of messages is sent. Using this argument continues the script indefinitely. 
 
 #### Example
 
