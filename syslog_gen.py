@@ -54,22 +54,24 @@ def syslogs_sender():
         random_host = random.choice(range(1,11))
         random_tag = random.choice(tag)
         random_level = random.choice(syslog_level)
+        fqdn = "{0}{1}{2}".format(hostname, random_host, domain_name)
+        random_pid = random.choice(range(500,9999))
 
         message = open_sample_log(args.file)
+        fields = {'host_field': fqdn, 'date_field': time_output,\
+                'tag_field': random_tag}
 	
         format = logging.Formatter\
-                ('%(asctime)s {0}{1}{2} {3} %(levelname)s %(message)s'\
-                .format(hostname, random_host, domain_name, random_tag))
+                ('%(date_field)s %(host_field)s {0}[{1}]: %(message)s'\
+                .format(random_tag, random_pid))
         syslog.setFormatter(format)
 			
         print("[+] Sent: {0}: {1}".format(time_output, message), end='')
 
-        getattr(logger, random_level)(message)
+        getattr(logger, random_level)(message, extra=fields)
 
     logger.removeHandler(syslog)
     syslog.close()
-
-
 
 if __name__ == "__main__":
 
