@@ -18,7 +18,8 @@ This script is written for Python 3+ and is meant to be run from the command lin
 
 #### Optional Arguments
 
-* --sleep: Number of seconds to sleep until the next batch of messages is sent. Using this argument continues the script indefinitely or until the CTRL-C combination is invoked.  
+* --sleep: Number of seconds to sleep until the next batch of messages is sent. Using this argument continues the script indefinitely or until the CTRL-C combination is invoked.
+* --tcp: true or false. If the value is set to true, the messages will be sent using tcp instead of udp. The default is to send udp.
 
 #### Example
 
@@ -27,7 +28,17 @@ Send 10 messages at once:
 syslog_gen.py --host 192.168.1.100 --port 514 --file sample_logs --count 10 
 ```
 
+Send 10 messages at once using tcp:
+```
+syslog_gen.py --host 192.168.1.100 --port 514 --file sample_logs --count 10 --tcp true
+```
+
 Send 10 messages every 30 seconds:
 ```
 syslog_gen.py --host 192.168.1.100 --port 514 --file sample_logs --count 10 --sleep 30 
+```
+
+Send 10 messages every 30 seconds using tcp:
+```
+syslog_gen.py --host 192.168.1.100 --port 514 --file sample_logs --count 10 --sleep 30 --tcp true
 ```
