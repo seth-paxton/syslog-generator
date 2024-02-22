@@ -55,6 +55,7 @@ def syslogs_sender():
     
     logger.addHandler(syslog)
 
+    counter = 0
     for message in range(1, args.count+1):
         # Randomize some fields
         time_output = time.strftime("%b %d %H:%M:%S")
@@ -76,9 +77,11 @@ def syslogs_sender():
         print("[+] Sent: {0}: {1}".format(time_output, message), end='')
 
         getattr(logger, random_level)(message, extra=fields)
+        counter = counter+1
 
     logger.removeHandler(syslog)
     syslog.close()
+    print("\n{0} messages sent to {1} port {2}/{3}".format(counter, args.host, args.port, protocol))
 
 if __name__ == "__main__":
 
