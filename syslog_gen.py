@@ -21,7 +21,7 @@ that show up in the log messages.
 hostname = "host"
 domain_name = ".example.com"
 tag = ["kernel", "python", "ids", "ips"]
-syslog_level = ["info", "error", "warn", "critical"]
+syslog_level = ["info", "error", "warning", "critical"]
 
 def raw_udp_sender(message, host, port):
     # Stubbed in or later use
@@ -45,9 +45,17 @@ def syslogs_sender():
     # Initalize SysLogHandler
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    syslog = SysLogHandler(address=(args.host, args.port))
+    
+    if args.tcp:
+        # TCP
+        syslog = SysLogHandler(address=(args.host, args.port), socktype=socket.SOCK_STREAM)
+    else: 
+        # UDP (default)
+        syslog = SysLogHandler(address=(args.host, args.port))
+    
     logger.addHandler(syslog)
 
+    counter = 0
     for message in range(1, args.count+1):
         # Randomize some fields
         time_output = time.strftime("%b %d %H:%M:%S")
@@ -69,9 +77,11 @@ def syslogs_sender():
         print("[+] Sent: {0}: {1}".format(time_output, message), end='')
 
         getattr(logger, random_level)(message, extra=fields)
+        counter = counter+1
 
     logger.removeHandler(syslog)
     syslog.close()
+    print("\n{0} messages sent to {1} port {2}/{3}".format(counter, args.host, args.port, protocol))
 
 if __name__ == "__main__":
 
@@ -86,12 +96,17 @@ if __name__ == "__main__":
                         help="Number of messages to send")
     parser.add_argument("--sleep", type=float, help="Use with count flag to \
                         send X messages every X seconds, sleep being seconds")
+    parser.add_argument("--tcp", type=bool, help="Use TCP to send messages instead of UDP") 
 	
     args = parser.parse_args()
 		
+    protocol = "udp"
+    if args.tcp:
+        protocol = "tcp"
+
     if args.sleep:
-        print("[+] Sending {0} messages every {1} seconds to {2} on port {3}"\
-            .format(args.count, args.sleep, args.host, args.port))
+        print("[+] Sending {0} messages every {1} seconds to {2} on port {3} using protocol {4}"\
+            .format(args.count, args.sleep, args.host, args.port, protocol))
         try:
             while True:
                 syslogs_sender()
@@ -100,6 +115,6 @@ if __name__ == "__main__":
             # Use ctrl-c to stop the loop
             print("[+] Stopping syslog generator...")
     else:
-        print("[+] Sending {0} messages to {1} on port {2}".format
-            (args.count, args.host, args.port))
+        print("[+] Sending {0} messages to {1} on port {2} using protocol {3}".format
+            (args.count, args.host, args.port, protocol))
         syslogs_sender()
